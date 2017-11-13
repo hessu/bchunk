@@ -72,6 +72,11 @@
   	sox ('sox track.cdr track.wav'). Audio tracks can be written
   	in WAV format by using the -w switch.
   	
+  	The output type depends on the input type (data is just copied).
+  	If the input is in ISO format, the output will be. On the other
+  	hand, if the input is raw audio data, the output will be CDR or
+  	WAV (the latter if -w is given).
+
   	---
   	
   How to install this stuff:
@@ -125,6 +130,10 @@
 	The -r flag makes binchunker output MODE2/2352 tracks in raw
 	format, from offset 0 for 2352 bytes. Good for MPEG/VCD.
 	
+	The -p and -r flags works only with MODE2/2352 input (if input
+	is in PSX mode pass -p flag or if it is in raw format pass
+	-r flag).
+
 	The -w flag makes binchunker write audio tracks in WAV format.
 	
 	The -s flag makes binchunker swap byte order in the samples of
