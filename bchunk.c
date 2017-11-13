@@ -18,6 +18,7 @@
   *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
   */
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -271,11 +272,10 @@ int writetrack(FILE *bf, struct track_t *track, char *bname)
 	int16_t i;
 	float fl;
 	
-	if (!(fname = malloc(strlen(bname) + 8))) {
-		fprintf(stderr, "main(): malloc() failed, out of memory\n");
+	if (asprintf(&fname, "%s%2.2d.%s", bname, track->num, track->extension) == -1) {
+		fprintf(stderr, "writetrack(): asprintf() failed, out of memory\n");
 		exit(4);
 	}
-	sprintf(fname, "%s%2.2d.%s", bname, track->num, track->extension);
 	
 	printf("%2d: %s ", track->num, fname);
 	
