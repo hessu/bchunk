@@ -1,0 +1,17 @@
+Begin3
+Title:		bchunk
+Version:	1.2.0
+Entered-date:	29JUN04
+Description:	CD image format conversion from bin/cue to iso/cdr
+Keywords:	cdrecord cdwrite cue binchunker cdr
+Author:		hessu@hes.iki.fi (Heikki Hannikainen)
+Maintained-by:	hessu@hes.iki.fi (Heikki Hannikainen)
+Primary-site:	sunsite.unc.edu /pub/Linux/utils/disk-management
+		15kb bchunk-1.2.0.tar.gz
+		1kb bchunk-1.2.0.lsm
+Alternate-site:	http://he.fi/bchunk/
+		ftp.funet.fi /pub/Linux/sunsite/utils/disk-management
+Original-site:	http://www.fireburner.com/
+Platforms:	Any system that is somewhat ANSI and POSIX.1 compliant
+Copying-policy:	GPL
+End

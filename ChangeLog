@@ -1,0 +1,47 @@
+
+1.0.0 - Oct 11 1998 - Hessu
+
+	Initial release.
+
+1.1.0 - Jun 30 2001 - Hessu
+	
+	The odd maintenance update:
+	
+	With patches from both Colas Nahaboo <Colas@Nahaboo.com> and
+	Godmar Back <gback@cs.utah.edu>, support for MODE2/2352 images
+	(offset 24, 2048 byte data) has been fixed. I also added the
+	-p option to get around with PSX tracks (untested, no reports,
+	but this is what the original FireBurner source seems to do).
+	
+	Tracks with unrecognized mode are saved with extension '.ugh'.
+	A little  more error checking.
+	
+	Added WAV audio file output. The code that was added to do
+	correct byte orders might make break compiling on some systems.
+	Still works on Linux and Solaris (2.6, 2.8 tested).
+	
+	Added a man page, and 'make install' for systems with BSD install.
+
+1.1.1 - Aug 7 2001 - Hessu
+	
+	Added error detection while reading the bin file. Patch from
+	Oskar Liljeblad <osk@hem.passagen.se>, forwarded from the
+	debian bug tracking system by Sam Powers <sam@oddbox.org>.
+	
+	psxtruncate was always enabled, thanks for the report go to
+	Patrik Weiskircher <pat@icore.at>.
+	
+	Christian W. Zuckschwerdt <zany@triq.net> provided a fix for the
+	.spec file - replaced hardcoded paths with macros so that the
+	package will build on other distributions too.
+
+1.2.0 - Jun 29 2004 - Hessu
+
+	Included a man page patch from the openbsd port of bchunk (adding
+	a note about ISO/VCD), and s/ISO9110/ISO9660/. The changes were
+	for openbsd by Dave Watson <dave@elephantride.org>.
+	
+	Patch from Matthew Green <mrg@eterna.com.au> for a new option
+	-r, which makes binchunker output MODE2/2352 tracks in raw format,
+	from offset 0 for 2352 bytes.
+

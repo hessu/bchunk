@@ -1,0 +1,135 @@
+
+	binchunker for Unix, version 1.2.0
+	Copyright (C) 1998-2004  Heikki Hannikainen <hessu@hes.iki.fi>
+	
+	Enhancements provided by:
+		Colas Nahaboo <Colas@Nahaboo.com>, 1999
+		Godmar Back <gback@cs.utah.edu>, 2001
+		Matthew Green <mrg@eterna.com.au>, 2003
+		
+	http://he.fi/bchunk/
+	
+	Created with the kind help of Bob Marietta <marietrg@SLU.EDU>,
+	partly based on his Pascal (Delphi) implementation.
+	Released under the GNU GPL, version 2 or later (at your option).
+	
+	---
+
+  Licence:
+	
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+      
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+      
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+	02111-1307 USA
+	
+	---
+
+  Credits:
+	
+	This is a Unix/C rewrite of the fine BinChunker software for some
+	non-Unix system. The non-Unix version of BinChunker has been
+	obsoleted by FireBurner, which can be found at www.fireburner.com.
+	FireBurner does a lot more than BinChunker did, but can be used to
+	do exactly the same even without a burner device installed.
+	Thanks go to Bob Marietta, the author of BinChunker, for the
+	extensive help, documentation and letting me look at his
+	Pascal/Delphi source code!
+	
+	Colas Nahaboo <Colas@Nahaboo.com> and Godmar Back <gback@cs.utah.edu>
+	added support for MODE2/2352 ISO data tracks in bchunk 1.1.0.
+	Matthew Green implemented the -r option for raw MODE2/2352
+	exctraction for bchunk 1.2.0.
+  	
+  	---
+  
+  What on earth is this stuff:
+  
+  	binchunker converts a CD image in a ".bin / .cue" format
+  	(sometimes ".raw / .cue") to a set of .iso and .cdr tracks.
+  	
+  	The bin/cue format is used by some non-Unix cd-writing
+  	software, but is not supported on most other cd-writing
+  	programs.
+  	
+  	The .iso track contains an ISO file system, which can be
+  	mounted through a loop device on Linux systems ('mount track.iso
+  	/mnt/cdrom -o loop=/dev/loop0,blocksize=1024'), or written on a
+  	CD-R using cdrecord.
+  	
+  	The .cdr tracks are in the native CD audio format. They can
+  	be either written on a CD-R using cdrecord -audio, or converted
+  	to WAV (or any other sound format for that matter) using
+  	sox ('sox track.cdr track.wav'). Audio tracks can be written
+  	in WAV format by using the -w switch.
+  	
+  	---
+  	
+  How to install this stuff:
+  	
+  	$ gzip -d -c bchunk-1.2.0.tar.gz | tar xvf -
+  	$ cd bchunk-1.2.0
+  	$ make
+  	# make install
+  	
+  	If your system does not have GCC installed, edit Makefile,
+  	uncommenting the CC lines.
+  	
+  	If your system does not ship with a BSD-style 'install' program and the
+  	make install fails, copy the resulting 'bchunk' binary to your favourite
+  	directory in your $PATH. /usr/local/bin is a good one. The manual page
+  	'bchunk.1' should go to /usr/local/man/man1 for example.
+  	
+  	bchunk has been successfully compiled on the following platforms:
+  	
+  		Linux 2.0, i686, glibc 2.0.7, gcc 2.7.2.3  (RedHat 5.1)
+  		Linux 2.2, i686, glibc 2.1.1, egcs 1.1.2 (RedHat 6.0)
+  		Linux 2.4, i686, glibc 2.2, gcc-2.96 (RedHat 7.0)
+  		Solaris 2.5.1, SPARC, gcc 2.7.2
+  		Solaris 2.6, SPARC, gcc 2.8.1
+  		Digital Unix 4.0c, Alpha, DEC C V5.2-033
+  		SGI IRIX 6.5.7m, MIPS R4600 IP22, gcc 2.95.2
+  		Mac OS X 10.1.4, gcc 2.95.2
+  	
+  	It should be ANSI enough to compile on any decent system.
+  	(The HP-UX bundled compiler is not decent.)
+  	
+  	---
+  	
+  How to use this stuff:
+  	
+  	bchunk [-v] [-p (PSX)] [-r (raw)] [-w (wav)] [-s (swabaudio)]
+  	  <image.bin> <image.cue> <basename>
+  	
+  	image.bin is the raw cd image file. image.cue is the
+  	track index file containing track types and offsets.
+  	basename is used for the beginning part of the created
+  	track files.
+	
+	The -v flag makes binchunker print some more unnecessary
+	messages, which should not be of interest for anyone.
+	
+	The -p flag makes binchunker go into PSX mode and truncate
+	MODE2/2352 tracks to 2336 bytes at offset 0 instead of normal
+	2048 bytes at offset 24.
+	
+	The -r flag makes binchunker output MODE2/2352 tracks in raw
+	format, from offset 0 for 2352 bytes. Good for MPEG/VCD.
+	
+	The -w flag makes binchunker write audio tracks in WAV format.
+	
+	The -s flag makes binchunker swap byte order in the samples of
+	the audio tracks. If the audio sounds like loud static noise,
+	try this.
+	
+
+
