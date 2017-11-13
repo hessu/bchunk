@@ -387,7 +387,6 @@ int main(int argc, char **argv)
 {
 	char s[CUELLEN+1];
 	char *p, *t;
-	int i, idx;
 	struct track_t *tracks = NULL;
 	struct track_t *track = NULL;
 	struct track_t *prevtrack = NULL;
@@ -417,7 +416,6 @@ int main(int argc, char **argv)
 		return 3;
 	}
 	
-	i = 0;
 	while (fgets(s, CUELLEN, cuef)) {
 		while ((p = strchr(s, '\r')) || (p = strchr(s, '\n')))
 			*p = '\0';
@@ -469,7 +467,6 @@ int main(int argc, char **argv)
 			}
 			*t = '\0';
 			t++;
-			idx = atoi(p);
 			printf(" %s %s", p, t);
 			track->startsect = time2frames(t);
 			track->start = track->startsect * SECTLEN;
