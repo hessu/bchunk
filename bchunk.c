@@ -476,7 +476,7 @@ int main(int argc, char **argv)
 			if (verbose)
 				printf(" (startsect %ld ofs %ld)", track->startsect, track->start);
 			if ((prevtrack) && (prevtrack->stopsect < 0)) {
-				prevtrack->stopsect = track->startsect;
+				prevtrack->stopsect = track->startsect - 1;
 				prevtrack->stop = track->start - 1;
 			}
 		}
@@ -484,7 +484,7 @@ int main(int argc, char **argv)
 	
 	if (track) {
 		fseek(binf, 0, SEEK_END);
-		track->stop = ftell(binf);
+		track->stop = ftell(binf) - 1;
 		track->stopsect = track->stop / SECTLEN;
 	}
 	
