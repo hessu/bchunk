@@ -1,5 +1,5 @@
 %define name bchunk
-%define version 1.2.0
+%define version 1.2.2
 %define release 0
 
 Summary: A CD image format converter from .bin/.cue to .iso/.cdr/.wav.
@@ -43,6 +43,9 @@ rm -r $RPM_BUILD_ROOT
 %{_mandir}/man1/bchunk.1.gz
 
 %changelog
+* Tue Nov 14 2017 Hessu <hessu@hes.iki.fi>
+- updated to 1.2.2
+
 * Tue Jun 29 2004 Hessu <hessu@hes.iki.fi>
 - updated to 1.2.0
 
