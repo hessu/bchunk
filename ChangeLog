@@ -45,3 +45,21 @@
 	-r, which makes binchunker output MODE2/2352 tracks in raw format,
 	from offset 0 for 2352 bytes.
 
+1.2.1 - skipped due to CVE items referring to a fork using this version
+
+1.2.2 - Nov 14 2017 - Hessu
+
+	Fixes CVE-2017-15953, a heap-based buffer overflow.
+	Fix provided by Yegor Timoshenko.
+
+	Fixes CVE-2017-15955, Access violation near NULL on destination
+	operand and crash when processing a malformed CUE (.cue) file.
+	Fix provided by Yegor Timoshenko.
+
+	Fix wrong track size calculation when having multiple tracks in
+	one image. (Closes debian bug: #261274).
+	Fix provided by Piotr Kaczuba.
+
+	Clarify manual page for input/output file types
+	Improvement from Reuben Thomas, debian bug: #503151
+

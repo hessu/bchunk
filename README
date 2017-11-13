@@ -1,11 +1,15 @@
 
-	binchunker for Unix, version 1.2.0
+	binchunker for Unix, version 1.2.2
 	Copyright (C) 1998-2004  Heikki Hannikainen <hessu@hes.iki.fi>
 	
 	Enhancements provided by:
 		Colas Nahaboo <Colas@Nahaboo.com>, 1999
 		Godmar Back <gback@cs.utah.edu>, 2001
 		Matthew Green <mrg@eterna.com.au>, 2003
+		Piotr Kaczuba <pepe@attika.ath.cx>, 2009
+		Reuben Thomas <rrt@femur.dyndns.org>, 2008
+		Yegor Timoshenko <yegortimoshenko@gmail.com>, 2017
+
 		
 	http://he.fi/bchunk/
 	
@@ -81,8 +85,8 @@
   	
   How to install this stuff:
   	
-  	$ gzip -d -c bchunk-1.2.0.tar.gz | tar xvf -
-  	$ cd bchunk-1.2.0
+  	$ gzip -d -c bchunk-1.2.2.tar.gz | tar xvf -
+  	$ cd bchunk-1.2.2
   	$ make
   	# make install
   	
