@@ -426,12 +426,12 @@ int main(int argc, char **argv)
 			printf("\nTrack ");
 			if (!(p = strchr(p, ' '))) {
 				fprintf(stderr, "... ouch, no space after TRACK.\n");
-				continue;
+				exit(3);
 			}
 			p++;
 			if (!(t = strchr(p, ' '))) {
 				fprintf(stderr, "... ouch, no space after track number.\n");
-				continue;
+				exit(3);
 			}
 			*t = '\0';
 			
@@ -460,12 +460,12 @@ int main(int argc, char **argv)
 		} else if ((p = strstr(s, "INDEX"))) {
 			if (!(p = strchr(p, ' '))) {
 				printf("... ouch, no space after INDEX.\n");
-				continue;
+				exit(3);
 			}
 			p++;
 			if (!(t = strchr(p, ' '))) {
 				printf("... ouch, no space after index number.\n");
-				continue;
+				exit(3);
 			}
 			*t = '\0';
 			t++;
