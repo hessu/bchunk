@@ -33,7 +33,7 @@ installman:
 BITS = bchunk.o
 
 bchunk: $(BITS)
-	$(LD) $(LDFLAGS) -o bchunk $(BITS)
+	$(LD) -o bchunk $(BITS) $(LDFLAGS)
 
 bchunk.o:	bchunk.c
 

@@ -59,7 +59,11 @@
  */
 
 #include <inttypes.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <netinet/in.h>
+#endif
 
 #define bswap_16(x) \
      ((((x) >> 8) & 0xff) | (((x) & 0xff) << 8))
@@ -279,7 +283,7 @@ int writetrack(FILE *bf, struct track_t *track, char *bname)
 	
 	printf("%2d: %s ", track->num, fname);
 	
-	if (!(f = fopen(fname, "w"))) {
+	if (!(f = fopen(fname, "wb"))) {
 		fprintf(stderr, " Could not fopen track file: %s\n", strerror(errno));
 		exit(4);
 	}
@@ -398,7 +402,7 @@ int main(int argc, char **argv)
 	
 	parse_args(argc, argv);
 	
-	if (!((binf = fopen(binfile, "r")))) {
+	if (!((binf = fopen(binfile, "rb")))) {
 		fprintf(stderr, "Could not open BIN %s: %s\n", binfile, strerror(errno));
 		return 2;
 	}
