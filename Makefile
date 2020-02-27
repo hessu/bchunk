@@ -12,6 +12,9 @@ CFLAGS = -Wall -Wstrict-prototypes -O2
 
 # For BSD install: Which install to use and where to put the files
 INSTALL = install
+INSTALL_DIR = $(INSTALL) -d -m 0755
+INSTALL_DATA = $(INSTALL) -m 0644
+INSTALL_EXEC = $(INSTALL) -m 0755
 PREFIX  = /usr/local
 BIN_DIR = $(PREFIX)/bin
 MAN_DIR = $(PREFIX)/man
@@ -26,9 +29,11 @@ distclean: clean
 
 install: installbin installman
 installbin:
-	$(INSTALL) -m 755 -s -o root -g root bchunk		$(BIN_DIR)
+	$(INSTALL_DIR) $(DESTDIR)$(BIN_DIR)
+	$(INSTALL_EXEC) -s bchunk $(DESTDIR)$(BIN_DIR)
 installman:
-	$(INSTALL) -m 644 -o bin -g bin bchunk.1	 	$(MAN_DIR)/man1
+	$(INSTALL_DIR) $(DESTDIR)$(MAN_DIR)/man1
+	$(INSTALL_DATA) bchunk.1 $(DESTDIR)$(MAN_DIR)/man1
 
 BITS = bchunk.o
 
