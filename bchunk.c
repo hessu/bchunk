@@ -89,6 +89,7 @@ struct track_t {
 	long start;
 	long stop;
 	struct track_t *next;
+	char *title;
 };
 
 char *basefile = NULL;
@@ -276,9 +277,16 @@ int writetrack(FILE *bf, struct track_t *track, char *bname)
 	int16_t i;
 	float fl;
 	
-	if (asprintf(&fname, "%s%2.2d.%s", bname, track->num, track->extension) == -1) {
-		fprintf(stderr, "writetrack(): asprintf() failed, out of memory\n");
-		exit(4);
+	if (strlen(track->title) > 0) {
+		if (asprintf(&fname, "%2.2d.%s.%s", track->num, track->title, track->extension) == -1) {
+			fprintf(stderr, "writetrack(): asprintf() failed, out of memory\n");
+			exit(4);
+		}
+	} else {
+		if (asprintf(&fname, "%s%2.2d.%s", bname, track->num, track->extension) == -1) {
+			fprintf(stderr, "writetrack(): asprintf() failed, out of memory\n");
+			exit(4);
+		}
 	}
 	
 	printf("%2d: %s ", track->num, fname);
@@ -456,6 +464,7 @@ int main(int argc, char **argv)
 			track->bsize = track->bstart = -1;
 			track->bsize = -1;
 			track->startsect = track->stopsect = -1;
+			track->title = "\0";
 			
 			gettrackmode(track, p);
 			
@@ -480,6 +489,15 @@ int main(int argc, char **argv)
 				prevtrack->stopsect = track->startsect - 1;
 				prevtrack->stop = track->start - 1;
 			}
+		} else if ((p = strstr(s, "    TITLE"))) {
+			if (!(p = strchr(p, '\"'))) {
+				printf("...ouch, no quotation mark after TITLE.\n");
+				exit(3);
+			}
+			p++;
+			track->title = malloc(strlen(p));
+			strcpy(track->title, p);
+			track->title[strlen(p) - 1] = '\0';
 		}
 	}
 	
