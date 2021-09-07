@@ -52,7 +52,7 @@
 	Colas Nahaboo <Colas@Nahaboo.com> and Godmar Back <gback@cs.utah.edu>
 	added support for MODE2/2352 ISO data tracks in bchunk 1.1.0.
 	Matthew Green implemented the -r option for raw MODE2/2352
-	exctraction for bchunk 1.2.0.
+	extraction for bchunk 1.2.0.
   	
   	---
   
