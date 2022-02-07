@@ -96,7 +96,7 @@ char *binfile = NULL;
 char *cuefile = NULL;
 int verbose = 0;
 int psxtruncate = 0;
-int raw = 0;
+int rawmode = 0; 
 int swabaudio = 0;
 int towav = 0;
 
@@ -111,7 +111,7 @@ void parse_args(int argc, char *argv[])
 	while ((s = getopt(argc, argv, "swvp?hr")) != -1) {
 		switch (s) {
 			case 'r':
-				raw = 1;
+				rawmode = 1;
 				break;
 			case 'v':
 				verbose = 1;
@@ -202,7 +202,7 @@ void gettrackmode(struct track_t *track, char *modes)
 		
 	} else if (!strcasecmp(modes, "MODE2/2352")) {
 		track->extension = ext_iso;
-		if (raw) {
+		if (rawmode) {
 			/* Raw MODE2/2352 */
 			track->bstart = 0;
 			track->bsize = 2352;
