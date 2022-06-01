@@ -47,10 +47,8 @@
 #define CUELLEN 1024
 #define SECTLEN 2352
 
-#define WAV_RIFF_HLEN 12
 #define WAV_FORMAT_HLEN 24
 #define WAV_DATA_HLEN 8
-#define WAV_HEADER_LEN WAV_RIFF_HLEN + WAV_FORMAT_HLEN + WAV_DATA_HLEN
 
 /*
  *	Ugly way to convert integers to little-endian format.
@@ -78,7 +76,6 @@
 
 struct track_t {
 	int num;
-	int mode;
 	int audio;
 	char *modes;
 	char *extension;
@@ -451,10 +448,8 @@ int main(int argc, char **argv)
 			printf("%2d: %-12.12s ", track->num, p);
 			track->modes = strdup(p);
 			track->extension = NULL;
-			track->mode = 0;
 			track->audio = 0;
 			track->bsize = track->bstart = -1;
-			track->bsize = -1;
 			track->startsect = track->stopsect = -1;
 			
 			gettrackmode(track, p);
@@ -501,4 +496,3 @@ int main(int argc, char **argv)
 	
 	return 0;
 }
-
