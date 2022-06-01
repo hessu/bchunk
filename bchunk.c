@@ -268,7 +268,8 @@ int writetrack(FILE *bf, struct track_t *track, char *bname)
 	FILE *f;
 	char buf[SECTLEN+10];
 	long sz, sect, realsz, reallen;
-	char c, *p, *p2, *ep;
+	char c;
+	int p;
 	int32_t l;
 	int16_t i;
 	float fl;
@@ -301,7 +302,7 @@ int writetrack(FILE *bf, struct track_t *track, char *bname)
 
 	printf("                                          ");
 	
-	if ((track->audio) && (towav)) {
+	if (track->audio && towav) {
 		// RIFF header
 		fputs("RIFF", f);
 		l = htolel(reallen + WAV_DATA_HLEN + WAV_FORMAT_HLEN + 4);
@@ -334,18 +335,12 @@ int writetrack(FILE *bf, struct track_t *track, char *bname)
 	sect = track->startsect;
 	fl = 0;
 	while ((sect <= track->stopsect) && (fread(buf, SECTLEN, 1, bf) > 0)) {
-		if (track->audio) {
-			if (swabaudio) {
-				/* swap low and high bytes */
-				p = &buf[track->bstart];
-				ep = p + track->bsize;
-				while (p < ep) {
-					p2 = p + 1;
-					c = *p;
-					*p = *p2;
-					*p2 = c;
-					p += 2;
-				}
+		if (track->audio && swabaudio) {
+			/* swap low and high bytes */
+			for (p = track->bstart; p < track->bstart + track->bsize; p += 2) {
+				c = buf[p];
+				buf[p] = buf[p + 1];
+				buf[p + 1] = c;
 			}
 		}
 		if (fwrite(&buf[track->bstart], track->bsize, 1, f) < 1) {
@@ -486,13 +481,13 @@ int main(int argc, char **argv)
 	
 	printf("\n\n");
 	
-	
+
 	printf("Writing tracks:\n\n");
 	for (track = tracks; (track); track = track->next)
 		writetrack(binf, track, basefile);
 		
 	fclose(binf);
 	fclose(cuef);
-	
+
 	return 0;
 }
