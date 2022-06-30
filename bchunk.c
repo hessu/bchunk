@@ -47,6 +47,9 @@
 		"\tGodmar Back <gback@cs.utah.edu>, Colas Nahaboo <Colas@Nahaboo.com>\n" \
 		"\tMatthew Green <mrg@eterna.com.au> & twojstaryzdomu <@github.com>.\n" \
 		"\tReleased under the GNU GPL, version 2 or later (at your option).\n\n"
+	
+#define HINT	"\nUse '-t' to include track # in output filename. " \
+		"Remaining tracks were not processed\n"
 
 #define CUELLEN 1024
 #define SECTLEN 2352
@@ -332,10 +335,15 @@ int writetrack(FILE *bf, struct track_t *track)
 	int16_t i;
 	float fl;
 	
-	printf("%2d: %s ", track->num, track->output);
+	if (!(f = fopen(track->output, "wbx"))) {
+		if (errno == EEXIST)
+			die_format(5,	"%2d: skipped: output file %s already exists, aborting\n%s",
+					track->num, track->output, HINT);
+		else
+			die_format(4, " Could not fopen track file: %s\n", strerror(errno));
+	}
 	
-	if (!(f = fopen(track->output, "wb")))
-		die_format(4, " Could not fopen track file: %s\n", strerror(errno));
+	printf("%2d: %s ", track->num, track->output);
 	
 	if (fseek(bf, track->start, SEEK_SET))
 		die_format(4, " Could not fseek to track location: %s\n", strerror(errno));
@@ -463,6 +471,9 @@ int set_output(struct track_t *track, char *binfile, char *basefile, int trackad
 		die(4, "set_output(): asprintf() failed, out of memory\n");
 	free(bname);
 	bname = NULL;
+	if (strcmp(track->output, track->file) == 0)
+		die_format(5,   "%2d: skipped: output file %s same as input file, aborting\n%s",
+				track->num, track->output, HINT);
 	return 1;
 }
 

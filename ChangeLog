@@ -72,3 +72,5 @@
 	the output filenames as done by default in earlier releases.
 
 	Sealed various memory leaks. Refactored exit statements.
+
+	Abort further processing if output file already exists.
