@@ -295,11 +295,14 @@ int writetrack(FILE *bf, struct track_t *track, char *bname)
 	
 	reallen = (track->stopsect - track->startsect + 1) * track->bsize;
 	if (verbose) {
-		printf("\n mmc sectors %ld->%ld (%ld)", track->startsect, track->stopsect, track->stopsect - track->startsect + 1);
-		printf("\n mmc bytes %ld->%ld (%ld)", track->start, track->stop, track->stop - track->start + 1);
-		printf("\n sector data at %d, %d bytes per sector", track->bstart, track->bsize);
-		printf("\n real data %ld bytes", (track->stopsect - track->startsect + 1) * track->bsize);
-		printf("\n");
+		printf(	"\n mmc sectors %ld->%ld (%ld)"
+			"\n mmc bytes %ld->%ld (%ld)"
+			"\n sector data at %d, %d bytes per sector"
+			"\n real data %ld bytes\n",
+			track->startsect, track->stopsect, track->stopsect - track->startsect + 1,
+			track->start, track->stop, track->stop - track->start + 1,
+			track->bstart, track->bsize,
+			reallen);
 	}
 
 	printf("                                          ");
