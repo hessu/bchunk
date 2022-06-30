@@ -63,3 +63,12 @@
 	Clarify manual page for input/output file types
 	Improvement from Reuben Thomas, debian bug: #503151
 
+1.2.3 - Jun 30 2022 - twojstaryzdomu
+
+	Added support for track # and multiple bin FILEs in cue sheet.
+	The output files are now named after the FILE with the appropriate
+	output extension added, without a track # inserted in between the
+	basename and the extension. The -t option includes the track # in
+	the output filenames as done by default in earlier releases.
+
+	Sealed various memory leaks. Refactored exit statements.

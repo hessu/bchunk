@@ -1,8 +1,9 @@
-.TH BCHUNK 1 "v1.2.2 14 Nov 2017" "Heikki Hannikainen"
+.TH BCHUNK 1 "v1.2.3 30 Jun 2022" "Heikki Hannikainen"
 .SH NAME
 bchunk \- CD image format conversion from bin/cue to iso/cdr
 .SH SYNOPSIS
-.B bchunk [-v] [-p] [-r] [-w] [-s] <image.bin> <image.cue> <basename>
+.B bchunk [-t] [-v] [-p] [-r] [-w] [-s]
+<image.bin | track # | '*'> <image.cue> [ <basename> ]
 .SH DESCRIPTION
 .LP
 .B bchunk 
@@ -13,10 +14,13 @@ The bin/cue format is used by some non-Unix cd-writing
 software, but is not supported on most other cd-writing
 programs.
 .LP
-image.bin is the raw cd image file. image.cue is the
-track index file containing track types and offsets.
-basename is used for the beginning part of the created
-track files.
+image.bin is a raw cd image file listed in the cue sheet as a FILE.
+track # is the track number listed in the cue sheet as a TRACK.
+track # may omit the leading 0s. The wildcard '*' (single quoted to
+prevent shell expansion) selects all tracks from a cue sheet for
+conversion. image.cue is the cue sheet file containing track types
+and offsets. basename is optionally used for the leading part of
+output filenames.
 .LP
 The produced .iso track contains an ISO file system, which can be
 mounted through a loop device on Linux systems, or
@@ -37,6 +41,12 @@ desired, respectively.
 The format itself does not contain this feature and in an ambiguous
 case it can only guess.
 .SH OPTIONS
+.TP 10
+.BI \-t
+Adds the track # in the output filename between the basename &
+the extension, as in
+.B bchunk
+releases prior to 1.2.3.
 .TP 10
 .BI \-v
 Makes binchunker print some more unnecessary messages, which should
@@ -61,10 +71,10 @@ raw format.
 .LP
 .TP 5
 .B image.bin
-Raw CD image file
+Raw CD image file, listed in the cue sheet as a FILE.
 .TP 5
 .B image.cue
-TOC (Track index, Table Of Contents) file
+Cue sheet, TOC (Track index, Table Of Contents) file.
 .TP 5
 .B *.iso
 Tracks in ISO9660 CD filesystem format. Can be either written on a
@@ -94,4 +104,6 @@ Colas Nahaboo <Colas@Nahaboo.com>
 Godmar Back <gback@cs.utah.edu>
 .br
 Matthew Green <mrg@eterna.com.au>
+.br
+twojstaryzdomu <@github.com>
 .br
