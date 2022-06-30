@@ -427,6 +427,46 @@ int writetrack(FILE *bf, struct track_t *track)
 }
 
 /*
+ *     Sets output filename
+ */
+
+int set_output(struct track_t *track, char *binfile, char *basefile, int trackadd) {
+	char *t;
+	if (strchr(binfile, '*')) {
+		if (!basefile)
+			bname = prune_ext(track->file);
+		else
+			if (asprintf(&bname, "%s", basefile) == -1)
+				die(4, "set_output(): asprintf() failed, out of memory\n");
+	} else if (strcmp(track->file, binfile) != 0) {
+		long num = strtol(binfile, &t, 10);
+		if (strlen(t) || num != track->num) {
+			printf("%2d: skipped: %s not matching FILE or TRACK from cuesheet\n", track->num, binfile);
+			return 0;
+		}
+	}
+	if (!bname) {
+		if (!basefile)
+			bname = prune_ext(binfile);
+		else
+			if (asprintf(&bname, "%s", basefile) == -1)
+				die(4, "set_output(): asprintf() failed, out of memory\n");
+	}
+	if (trackadd) {
+		if (bname)
+			t = bname;
+		if (asprintf(&bname, "%s%2.2d", bname ? bname : "", track->num) == -1)
+			die(4, "set_output(): asprintf() failed, out of memory\n");
+		free(t);
+	}
+	if (asprintf(&track->output, "%s.%s", bname, track->extension) == -1)
+		die(4, "set_output(): asprintf() failed, out of memory\n");
+	free(bname);
+	bname = NULL;
+	return 1;
+}
+
+/*
  *	Main
  */
 
@@ -529,43 +569,15 @@ int main(int argc, char **argv)
 	printf("\n\nWriting tracks:\n\n");
 	
 	for (track = tracks; (track); track = track->next) {
-		if (strchr(binfile, '*')) {
-			if (!basefile)
-				bname = prune_ext(track->file);
-			else
-				if (asprintf(&bname, "%s", basefile) == -1)
-					die(4, "main(): asprintf() failed, out of memory\n");
-		} else if (strcmp(track->file, binfile) != 0) {
-			long num = strtol(binfile, &t, 10);
-			if (strlen(t) || num != track->num) {
-				printf("%2d: skipped: %s not matching FILE or TRACK from cuesheet\n", track->num, binfile);
-				continue;
-			}
-		}
-		if (!bname) {
-			if (!basefile)
-				bname = prune_ext(binfile);
-			else
-				if (asprintf(&bname, "%s", basefile) == -1)
-					die(4, "main(): asprintf() failed, out of memory\n");
-		}
-		if (trackadd) {
-			if (bname)
-				t = bname;
-			if (asprintf(&bname, "%s%2.2d", bname ? bname : "", track->num) == -1)
-				die(4, "main(): asprintf() failed, out of memory\n");
-			free(t);
-		}
-		if (asprintf(&track->output, "%s.%s", bname, track->extension) == -1)
-			die(4, "main(): asprintf() failed, out of memory\n");
-		free(bname);
-		bname = NULL;
+		if (!set_output(track, binfile, basefile, trackadd))
+			continue;
 		if (!(binf = fopen(track->file, "rb"))) {
 			fprintf(stderr, "Could not open BIN %s: %s\n", track->file, strerror(errno));
 			continue;
 		}
 		if (track->stopsect < 0) { // if not set yet
-			fseek(binf, 0, SEEK_END);
+			if (fseek(binf, 0, SEEK_END) == -1)
+				die_format(4, "main(): fseek failure in %s\n", track->file);
 			track->stop = ftell(binf) - 1;
 			track->stopsect = track->stop / SECTLEN;
 		}
