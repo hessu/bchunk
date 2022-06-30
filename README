@@ -1,5 +1,5 @@
 
-	binchunker for Unix, version 1.2.2
+	binchunker for Unix, version 1.2.3
 	Copyright (C) 1998-2004  Heikki Hannikainen <hessu@hes.iki.fi>
 	
 	Enhancements provided by:
@@ -9,6 +9,7 @@
 		Piotr Kaczuba <pepe@attika.ath.cx>, 2009
 		Reuben Thomas <rrt@femur.dyndns.org>, 2008
 		Yegor Timoshenko <yegortimoshenko@gmail.com>, 2017
+		twojstaryzdomu <@github.com>, 2022
 
 		
 	http://he.fi/bchunk/
@@ -61,6 +62,9 @@
   	binchunker converts a CD image in a ".bin / .cue" format
   	(sometimes ".raw / .cue") to a set of .iso and .cdr tracks.
   	
+  	It also allows to split uncompressed PCM audio files in the
+  	WAV format into individual tracks.
+  	
   	The bin/cue format is used by some non-Unix cd-writing
   	software, but is not supported on most other cd-writing
   	programs.
@@ -85,8 +89,8 @@
   	
   How to install this stuff:
   	
-  	$ gzip -d -c bchunk-1.2.2.tar.gz | tar xvf -
-  	$ cd bchunk-1.2.2
+  	$ gzip -d -c bchunk-1.2.3.tar.gz | tar xvf -
+  	$ cd bchunk-1.2.3
   	$ make
   	# make install
   	
@@ -116,13 +120,23 @@
   	
   How to use this stuff:
   	
-  	bchunk [-v] [-p (PSX)] [-r (raw)] [-w (wav)] [-s (swabaudio)]
-  	  <image.bin> <image.cue> <basename>
+  	bchunk [-t] [-v] [-p (PSX)] [-r (raw)] [-w (wav)] [-s (swabaudio)]
+         <image.bin | image.wav | track # | '*'> <image.cue> [ <basename> ]
   	
-  	image.bin is the raw cd image file. image.cue is the
-  	track index file containing track types and offsets.
-  	basename is used for the beginning part of the created
-  	track files.
+  	image.bin is a source raw cd image file and image.wav is an
+  	uncompressed PCM audio file, either listed in the
+  	cue sheet file as a FILE. track # identifies the track listed
+  	in the cue sheet as a TRACK. The wildcard '*' (quoted)
+  	selects all tracks for conversion. image.cue is the cue sheet
+  	file containing filenames, track types and offsets. The optional
+  	basename is used for the leading part of the output filenames.
+  	By default, the output files are now named after the basename
+  	of the source image file or the track #, ending with the
+  	appropriate format extension. basename may contain the track
+  	token ## which will be replaced by the track number.
+	
+	The -t flag adds the track # in the output filename between
+	the basename & the extension, as in versions prior to 1.2.3.
 	
 	The -v flag makes binchunker print some more unnecessary
 	messages, which should not be of interest for anyone.
@@ -137,7 +151,7 @@
 	The -p and -r flags works only with MODE2/2352 input (if input
 	is in PSX mode pass -p flag or if it is in raw format pass
 	-r flag).
-
+	
 	The -w flag makes binchunker write audio tracks in WAV format.
 	
 	The -s flag makes binchunker swap byte order in the samples of
