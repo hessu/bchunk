@@ -19,6 +19,7 @@
   */
 
 #define _GNU_SOURCE
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -132,9 +133,12 @@ void free_all(void)
 	free(bname);
 }
 
-void die_format(int status, char *format, char *error)
+void die_format(int status, char *format, ...)
 {
-	fprintf(stderr, format, error);
+	va_list args;
+	va_start(args, format);
+	vfprintf(stderr, format, args);
+	va_end(args);
 	free_all();
 	exit(status);
 }
@@ -204,8 +208,7 @@ void parse_args(int argc, char *argv[])
 				basefile = strdup(argv[i]);
 				break;
 			default:
-				fprintf(stderr, "Gratuitous argument %s\n%s", argv[i], USAGE);
-				exit(1);
+				die_format(1, "Gratuitous argument %s\n%s", argv[i], USAGE);
 		}
 	}
 }
@@ -414,10 +417,8 @@ int writetrack(FILE *bf, struct track_t *track)
 	printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b%4ld/%-4ld MB  [%s] %3.0f %%", realsz/1024/1024, reallen/1024/1024, progressbar(1, 20), fl * 100);
 	fflush(stdout);
 	
-	if (ferror(bf)) {
-		fprintf(stderr, " Could not read from %s: %s\n", binfile, strerror(errno));
-		exit(4);
-	}
+	if (ferror(bf))
+		die_format(4, " Could not read from %s: %s\n", binfile, strerror(errno));
 	if (fclose(f))
 		die_format(4, " Could not fclose track file: %s\n", strerror(errno));
 	
@@ -440,10 +441,9 @@ int main(int argc, char **argv)
 	
 	parse_args(argc, argv);
 	
-	if (!((cuef = fopen(cuefile, "r")))) {
-		fprintf(stderr, "Could not open CUE %s: %s\n", cuefile, strerror(errno));
-		return 2;
-	}
+	if (!((cuef = fopen(cuefile, "r"))))
+		die_format(2, "Could not open CUE %s: %s\n", cuefile, strerror(errno));
+	
 	if (verbose)
 		printf("Include track # in output filename: %s\n\n", trackadd ? "yes" : "no");
 	
