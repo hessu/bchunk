@@ -18,15 +18,16 @@ programs.
 It also allows to split uncompressed PCM audio files in the
 WAV format into individual tracks.
 .LP
-image.bin is a raw cd image file and image.wav is an uncompressed
-PCM audio file, either listed in the cue sheet file as a FILE.
-track # is the track number listed in the cue sheet as a TRACK.
-track # may omit the leading 0s. The wildcard '*' (single quoted to
-prevent shell expansion) selects all tracks from a cue sheet for
-conversion. image.cue is the cue sheet file containing track types
-and offsets. basename is optionally used for the leading part of
-output filenames. basename may contain the track token '##'
-which will be replaced by the track number.
+\fIimage.bin\fP is a raw cd image file and \fIimage.wav\fP is an
+uncompressed  PCM audio file, either listed in the cue sheet file
+as a FILE. \fItrack #\fP is the track number listed in the cue sheet
+as a TRACK. \fItrack #\fP may omit the leading 0s. The wildcard
+'\fI*\fP' (single quoted to prevent shell expansion) selects all
+tracks from a cue sheet for conversion. \fIimage.cue\fP is the cue
+sheet file containing track types and offsets. \fIbasename\fP is
+optionally used for the leading part of output filenames.
+\fIbasename\fP may contain the track token '##' which will be
+replaced by the track number.
 .LP
 The produced .iso track contains an ISO file system, which can be
 mounted through a loop device on Linux systems, or
