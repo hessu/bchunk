@@ -74,3 +74,8 @@
 	Sealed various memory leaks. Refactored exit statements.
 
 	Abort further processing if output file already exists.
+
+	Added support for ## as track # replacement token in the basename
+	parameter.
+
+	Added support for splitting WAV files into individual tracks.

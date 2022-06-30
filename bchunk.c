@@ -28,12 +28,13 @@
 
 #define VERSION "1.2.3"
 #define USAGE "Usage: bchunk [-t] [-v] [-r] [-p (PSX)] [-w (wav)] [-s (swabaudio)]\n" \
-	"         <image.bin | track # | '*'> <image.cue> [ <basename> ]\n" \
+	"         <image.bin | image.wav | track # | '*'> <image.cue> [ <basename> ]\n" \
 	"Example: bchunk foo.bin foo.cue foo\n" \
 	"         bchunk foo.bin foo.cue\n" \
 	"         bchunk 2 foo.cue foo\n" \
 	"  -t  Insert track # in between the basename and the format extension\n" \
 	"  -v  Verbose mode\n" \
+	"  -d  Debug mode\n" \
 	"  -r  Raw mode for MODE2/2352: write all 2352 bytes from offset 0 (VCD/MPEG)\n" \
 	"  -p  PSX mode for MODE2/2352: write 2336 bytes from offset 24\n" \
 	"      (default MODE2/2352 mode writes 2048 bytes from offset 24)\n"\
@@ -57,7 +58,12 @@
 #define WAV_RIFF_HLEN 12
 #define WAV_FORMAT_HLEN 24
 #define WAV_DATA_HLEN 8
+#define WAV_DATA_FOURCC "data"
+#define WAV_DATA_FLEN sizeof(WAV_DATA_FOURCC) - 1
 #define WAV_HEADER_LEN WAV_RIFF_HLEN + WAV_FORMAT_HLEN + WAV_DATA_HLEN
+#define WAV_HEADER_MAX WAV_HEADER_LEN + 100
+
+#define TRACK_TOKEN "##"
 
 /*
  *	Ugly way to convert integers to little-endian format.
@@ -93,6 +99,7 @@ struct track_t {
 	char *extension;
 	int bstart;
 	int bsize;
+	long dataoffs;
 	long startsect;
 	long stopsect;
 	long start;
@@ -106,6 +113,7 @@ char *cuefile = NULL;
 char *bname = NULL;
 char *file = NULL;
 int verbose = 0;
+int debug = 0;
 int psxtruncate = 0;
 int raw = 0;
 int swabaudio = 0;
@@ -170,13 +178,16 @@ void parse_args(int argc, char *argv[])
 {
 	int s;
 	
-	while ((s = getopt(argc, argv, "swvp?hrt")) != -1) {
+	while ((s = getopt(argc, argv, "swvp?hrtd")) != -1) {
 		switch (s) {
 			case 'r':
 				raw = 1;
 				break;
 			case 'v':
 				verbose = 1;
+				break;
+			case 'd':
+				debug = 1;
 				break;
 			case 'w':
 				towav = 1;
@@ -243,6 +254,44 @@ long time2frames(char *s)
 }
 
 /*
+ *	Check WAV file name extension
+ */
+
+int is_wav_file(struct track_t *track) {
+	static char ext_wav[] = ".wav";
+	return !strcasecmp(track->file + strlen(track->file) - strlen(ext_wav), ext_wav);
+}
+
+/*
+ *	Set WAV data header offset
+ */
+
+int set_wav_data_offset(FILE *bf, struct track_t *track) {
+	char s[WAV_DATA_FLEN+1];
+	s[WAV_DATA_FLEN] = '\0';
+	for (int offset = WAV_HEADER_LEN; offset < WAV_HEADER_MAX; offset++) {
+		if (fseek(binf, offset, SEEK_SET) == -1)
+			die_format(4, " Could not fseek to offset %d: %s\n", offset, strerror(errno));
+		fread(s, WAV_DATA_FLEN, 1, binf);
+		if (strcmp(WAV_DATA_FOURCC, s) == 0) {
+			track->dataoffs = offset + WAV_DATA_HLEN;
+			if (debug) {
+				fseek(binf, offset + WAV_DATA_FLEN, SEEK_SET);
+				uint32_t w;
+				fread(&w, WAV_DATA_FLEN, 1, binf);
+				fprintf(stderr, " data header at %d\n"
+						" WAV data at %ld\n"
+						" WAV data bytes %u\n",
+						offset, track->dataoffs, w);
+			}
+			return 1;
+		}
+	}
+	printf("No WAV data header found in %s for track %d\n", track->file, track->num);
+	return 0;
+}
+
+/*
  *	Parse the mode string
  */
 
@@ -284,7 +333,7 @@ void gettrackmode(struct track_t *track, char *modes)
 		track->bsize = 2336;
 		track->extension = ext_iso;
 		
-	} else if (!strcasecmp(modes, "AUDIO")) {
+	} else if (!strcasecmp(modes, "AUDIO") || is_wav_file(track)) {
 		track->bstart = 0;
 		track->bsize = 2352;
 		track->audio = 1;
@@ -345,7 +394,7 @@ int writetrack(FILE *bf, struct track_t *track)
 	
 	printf("%2d: %s ", track->num, track->output);
 	
-	if (fseek(bf, track->start, SEEK_SET))
+	if (fseek(bf, track->start + track->dataoffs, SEEK_SET))
 		die_format(4, " Could not fseek to track location: %s\n", strerror(errno));
 	
 	reallen = (track->stopsect - track->startsect + 1) * track->bsize;
@@ -385,7 +434,7 @@ int writetrack(FILE *bf, struct track_t *track)
 		i = htoles(2*8);	// bits per channel
 		fwrite(&i, 2, 1, f);
 		// DATA header
-		fputs("data", f);
+		fputs(WAV_DATA_FOURCC, f);
 		l = htolel(reallen);
 		fwrite(&l, 4, 1, f);
 	}
@@ -394,6 +443,7 @@ int writetrack(FILE *bf, struct track_t *track)
 	sz = track->start;
 	sect = track->startsect;
 	fl = 0;
+
 	while ((sect <= track->stopsect) && (fread(buf, SECTLEN, 1, bf) > 0)) {
 		if (track->audio) {
 			if (swabaudio) {
@@ -439,7 +489,7 @@ int writetrack(FILE *bf, struct track_t *track)
  */
 
 int set_output(struct track_t *track, char *binfile, char *basefile, int trackadd) {
-	char *t;
+	char *e, *s, *t;
 	if (strchr(binfile, '*')) {
 		if (!basefile)
 			bname = prune_ext(track->file);
@@ -460,6 +510,19 @@ int set_output(struct track_t *track, char *binfile, char *basefile, int trackad
 			if (asprintf(&bname, "%s", basefile) == -1)
 				die(4, "set_output(): asprintf() failed, out of memory\n");
 	}
+	if (basefile)
+		if ((e = strstr(basefile, TRACK_TOKEN))) {
+			int l = e - basefile;
+			if (!(s = calloc(l + 1, 1)))
+				die(4, "set_output(): calloc() failed, out of memory\n");
+			strncpy(s, basefile, l);
+			if (bname)
+				t = bname;
+			if (asprintf(&bname, "%s%.2d%s", s, track->num, e + strlen(TRACK_TOKEN)) == -1)
+				die(4, "set_output(): asprintf() failed, out of memory\n");
+			free(s);
+			free(t);
+		}
 	if (trackadd) {
 		if (bname)
 			t = bname;
@@ -484,7 +547,7 @@ int set_output(struct track_t *track, char *binfile, char *basefile, int trackad
 int main(int argc, char **argv)
 {
 	char s[CUELLEN+1];
-	char *b, *e, *p, *t;
+	char *b, *e, *i, *p, *t, *u;
 	struct track_t *prevtrack = NULL;
 	struct track_t **prevp = &tracks;
 	
@@ -551,6 +614,7 @@ int main(int argc, char **argv)
 			track->output = NULL;
 			track->mode = 0;
 			track->audio = 0;
+			track->dataoffs = 0;
 			track->bsize = track->bstart = -1;
 			track->bsize = -1;
 			track->startsect = track->stopsect = -1;
@@ -566,13 +630,34 @@ int main(int argc, char **argv)
 			*t = '\0';
 			t++;
 			printf(" %s %s", p, t);
-			track->startsect = time2frames(t);
-			track->start = track->startsect * SECTLEN;
+			long index = strtol(p, &i, 10);
+			if (strlen(i))
+				die_format(3, "... ouch, non-digit found in INDEX %s: %s\n", p, i);
+			u = strdupa(t);
+			int ss;
+			// handle unordered pregap, ignore subtracks
+			for (ss = time2frames(t); ss > track->startsect && index < 2;) {
+				track->startsect = ss;
+				track->start = track->startsect * SECTLEN;
+			}
+			if (debug)
+				fprintf(stderr, "INDEX %s%s: %s startsect %d\n",
+						p, track->startsect + 1 ? "" : " updating",
+						u, ss);
 			if (verbose)
-				printf(" (startsect %ld ofs %ld)", track->startsect, track->start);
-			if ((prevtrack) && (prevtrack->stopsect < 0) && !(strcmp(prevtrack->file,track->file))) { // only when files match
-				prevtrack->stopsect = track->startsect - 1;
-				prevtrack->stop = track->start - 1;
+				printf(" (%sstartsect %ld ofs %ld)",
+					index == 0 ? "" :
+					index == 1 ? "pregap " : "subtrack ",
+					track->startsect, track->start);
+			if (prevtrack) {
+				// only when files match, ignore subtracks
+				if (!(strcmp(prevtrack->file,track->file)) && index < 2) {
+					prevtrack->stopsect = track->startsect - 1;
+					prevtrack->stop = track->start - 1;
+				}
+				if (debug)
+					fprintf(stderr, "TRACK %.2d: stopsect %ld\n",
+							prevtrack->num, prevtrack->stopsect);
 			}
 		}
 	}
@@ -586,10 +671,13 @@ int main(int argc, char **argv)
 			fprintf(stderr, "Could not open BIN %s: %s\n", track->file, strerror(errno));
 			continue;
 		}
+		if (is_wav_file(track))
+			if (!set_wav_data_offset(binf, track))
+				continue;
 		if (track->stopsect < 0) { // if not set yet
 			if (fseek(binf, 0, SEEK_END) == -1)
 				die_format(4, "main(): fseek failure in %s\n", track->file);
-			track->stop = ftell(binf) - 1;
+			track->stop = ftell(binf) - track->dataoffs - 1;
 			track->stopsect = track->stop / SECTLEN;
 		}
 		writetrack(binf, track);

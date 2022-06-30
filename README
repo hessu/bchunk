@@ -62,6 +62,9 @@
   	binchunker converts a CD image in a ".bin / .cue" format
   	(sometimes ".raw / .cue") to a set of .iso and .cdr tracks.
   	
+  	It also allows to split uncompressed PCM audio files in the
+  	WAV format into individual tracks.
+  	
   	The bin/cue format is used by some non-Unix cd-writing
   	software, but is not supported on most other cd-writing
   	programs.
@@ -118,9 +121,10 @@
   How to use this stuff:
   	
   	bchunk [-t] [-v] [-p (PSX)] [-r (raw)] [-w (wav)] [-s (swabaudio)]
-  	  <image.bin | track # | '*'> <image.cue> [ <basename> ]
+         <image.bin | image.wav | track # | '*'> <image.cue> [ <basename> ]
   	
-  	image.bin is a source raw cd image file listed in the
+  	image.bin is a source raw cd image file and image.wav is an
+  	uncompressed PCM audio file, either listed in the
   	cue sheet file as a FILE. track # identifies the track listed
   	in the cue sheet as a TRACK. The wildcard '*' (quoted)
   	selects all tracks for conversion. image.cue is the cue sheet
@@ -128,7 +132,8 @@
   	basename is used for the leading part of the output filenames.
   	By default, the output files are now named after the basename
   	of the source image file or the track #, ending with the
-  	appropriate format extension.
+  	appropriate format extension. basename may contain the track
+  	token ## which will be replaced by the track number.
 	
 	The -t flag adds the track # in the output filename between
 	the basename & the extension, as in versions prior to 1.2.3.
